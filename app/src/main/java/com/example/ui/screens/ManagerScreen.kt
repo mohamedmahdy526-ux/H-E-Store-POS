@@ -4,12 +4,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +34,7 @@ import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -91,7 +94,8 @@ fun ManagerScreen(
     onLock: () -> Unit,
     onChangePin: (String) -> Unit,
     onExportBackup: () -> String,
-    onRestoreDefaults: () -> Unit
+    onRestoreDefaults: () -> Unit,
+    onExportOrderPdf: (OrderEntity) -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -105,6 +109,7 @@ fun ManagerScreen(
             onPeriodSelected = onPeriodSelected,
             onLock = onLock,
             onChangePin = onChangePin,
+            onExportOrderPdf = onExportOrderPdf,
             onExportBackup = {
                 val json = onExportBackup()
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -235,6 +240,7 @@ private fun ManagerDashboardContent(
     onPeriodSelected: (String) -> Unit,
     onLock: () -> Unit,
     onChangePin: (String) -> Unit,
+    onExportOrderPdf: (OrderEntity) -> Unit,
     onExportBackup: () -> Unit,
     onRestoreDefaults: () -> Unit
 ) {
@@ -409,6 +415,115 @@ private fun ManagerDashboardContent(
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("رأس المال المجمد (التكلفة):", fontSize = 12.sp, color = CharcoalMuted)
                         Text("${String.format(Locale.US, "%.0f", totalInventoryCost)} ج.م", fontSize = 12.sp, color = ChampagneGold)
+                    }
+                }
+            }
+        }
+
+        // Recent Invoices & PDF Export Card
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = SoftBlushCard),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "سجل الفواتير والمبيعات (تصدير PDF)",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CharcoalText
+                        )
+                        Text(
+                            text = "${filteredOrders.size} فاتورة",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = RoseGoldPrimary
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    if (filteredOrders.isEmpty()) {
+                        Text(
+                            text = "لا توجد فواتير مسجلة في هذه الفترة الزمنية.",
+                            fontSize = 12.sp,
+                            color = CharcoalMuted,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    } else {
+                        // Display the most recent 10 orders
+                        val recentOrders = filteredOrders.sortedByDescending { it.timestamp }.take(10)
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            recentOrders.forEach { order ->
+                                val sdf = remember { java.text.SimpleDateFormat("yyyy/MM/dd hh:mm a", Locale("ar")) }
+                                val dateFormatted = sdf.format(java.util.Date(order.timestamp))
+
+                                Surface(
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = Color.White,
+                                    border = BorderStroke(1.dp, SoftBlushBorder),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(10.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Text(
+                                                    text = "فاتورة #${order.orderNumber}",
+                                                    fontSize = 13.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = CharcoalText
+                                                )
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text(
+                                                    text = "${String.format(Locale.US, "%.2f", order.netAmount)} ج.م",
+                                                    fontSize = 13.sp,
+                                                    fontWeight = FontWeight.ExtraBold,
+                                                    color = RoseGoldDark
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.height(2.dp))
+                                            Text(
+                                                text = "$dateFormatted • ${order.cashierName}",
+                                                fontSize = 10.sp,
+                                                color = CharcoalMuted
+                                            )
+                                        }
+
+                                        Button(
+                                            onClick = { onExportOrderPdf(order) },
+                                            colors = ButtonDefaults.buttonColors(containerColor = RoseGoldPrimary),
+                                            shape = RoundedCornerShape(8.dp),
+                                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Share,
+                                                contentDescription = "مشاركة PDF",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(14.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text(
+                                                text = "تصدير PDF",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

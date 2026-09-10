@@ -55,6 +55,7 @@ import com.example.ui.components.ReceiptDialog
 import com.example.ui.components.ReconcileStockDialog
 import com.example.ui.components.RecordExpenseDialog
 import com.example.ui.components.StoreHeader
+import com.example.ui.screens.CameraScreen
 import com.example.ui.screens.CashierScreen
 import com.example.ui.screens.InventoryScreen
 import com.example.ui.screens.ManagerScreen
@@ -122,6 +123,7 @@ fun StoreApp(viewModel: StoreViewModel) {
     var currentScreen by remember { mutableStateOf(StoreNavScreen.CASHIER) }
     var isCartSheetExpanded by remember { mutableStateOf(false) }
 
+    var showCameraScreen by remember { mutableStateOf(false) }
     var showScannerDialog by remember { mutableStateOf(false) }
     var showCheckoutDialog by remember { mutableStateOf(false) }
 
@@ -139,7 +141,7 @@ fun StoreApp(viewModel: StoreViewModel) {
             StoreHeader(
                 activeShift = activeShift,
                 cartCount = cartTotalCount,
-                onOpenScanner = { showScannerDialog = true },
+                onOpenScanner = { showCameraScreen = true },
                 onCartClicked = {
                     currentScreen = StoreNavScreen.CASHIER
                     isCartSheetExpanded = !isCartSheetExpanded
@@ -269,7 +271,8 @@ fun StoreApp(viewModel: StoreViewModel) {
                         onClearCart = { viewModel.clearCart() },
                         onOpenCheckout = { showCheckoutDialog = true },
                         isCartSheetExpanded = isCartSheetExpanded,
-                        onToggleCartSheet = { isCartSheetExpanded = !isCartSheetExpanded }
+                        onToggleCartSheet = { isCartSheetExpanded = !isCartSheetExpanded },
+                        onOpenScanner = { showCameraScreen = true }
                     )
                 }
 
@@ -313,16 +316,28 @@ fun StoreApp(viewModel: StoreViewModel) {
                         onLock = { viewModel.lockManager() },
                         onChangePin = { newPin -> viewModel.updateManagerPin(newPin) },
                         onExportBackup = { viewModel.exportBackupJson() },
-                        onRestoreDefaults = { viewModel.resetCatalogToDefaults() }
+                        onRestoreDefaults = { viewModel.resetCatalogToDefaults() },
+                        onExportOrderPdf = { order -> viewModel.exportAndShareOrderPdf(order, context) }
                     )
                 }
             }
         }
     }
 
-    // --- Modal Dialogs ---
+    // --- Modal Dialogs & Camera Screen ---
 
-    // 1. Barcode Scanner Dialog
+    // 1. CameraX Barcode Scanner Screen
+    if (showCameraScreen) {
+        CameraScreen(
+            products = allProducts,
+            onBarcodeScanned = { barcode ->
+                viewModel.onBarcodeScanned(barcode, context)
+            },
+            onClose = { showCameraScreen = false }
+        )
+    }
+
+    // 2. Barcode Scanner Dialog (Fallback)
     if (showScannerDialog) {
         BarcodeScannerDialog(
             sampleProducts = allProducts,
@@ -348,11 +363,12 @@ fun StoreApp(viewModel: StoreViewModel) {
         )
     }
 
-    // 3. Receipt Dialog
+    // 3. Receipt Dialog with PDF export & sharing
     currentReceipt?.let { receipt ->
         ReceiptDialog(
             receipt = receipt,
-            onShare = { r -> viewModel.shareReceipt(r, context) },
+            onExportPdf = { r -> viewModel.exportAndSharePdfInvoice(r, context) },
+            onShareText = { r -> viewModel.shareReceipt(r, context) },
             onDismiss = { viewModel.dismissReceipt() }
         )
     }

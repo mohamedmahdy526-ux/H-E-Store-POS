@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Discount
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Payment
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
@@ -100,7 +101,8 @@ fun CashierScreen(
     onClearCart: () -> Unit,
     onOpenCheckout: () -> Unit,
     isCartSheetExpanded: Boolean,
-    onToggleCartSheet: () -> Unit
+    onToggleCartSheet: () -> Unit,
+    onOpenScanner: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val categories = listOf("الكل", "عيون", "شفايف", "بشرة", "عناية", "إكسسوارات", "عطور", "أطفال")
@@ -131,6 +133,17 @@ fun CashierScreen(
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { onSearchChanged("") }) {
                             Icon(Icons.Default.Clear, contentDescription = "مسح", tint = CharcoalMuted)
+                        }
+                    } else {
+                        IconButton(
+                            onClick = onOpenScanner,
+                            modifier = Modifier.testTag("cashier_open_camera_button")
+                        ) {
+                            Icon(
+                                Icons.Default.QrCodeScanner,
+                                contentDescription = "مسح بالكاميرا",
+                                tint = RoseGoldPrimary
+                            )
                         }
                     }
                 },

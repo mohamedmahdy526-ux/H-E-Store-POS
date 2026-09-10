@@ -58,7 +58,8 @@ import java.util.Locale
 @Composable
 fun ReceiptDialog(
     receipt: SaleReceipt,
-    onShare: (SaleReceipt) -> Unit,
+    onExportPdf: (SaleReceipt) -> Unit,
+    onShareText: (SaleReceipt) -> Unit = {},
     onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
@@ -309,22 +310,40 @@ fun ReceiptDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Actions
+                // Primary Action: Export and Share PDF Invoice
+                Button(
+                    onClick = { onExportPdf(receipt) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .testTag("receipt_export_pdf_button"),
+                    colors = ButtonDefaults.buttonColors(containerColor = RoseGoldDark),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "توليد ومشاركة فاتورة PDF 📄",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Secondary Actions: WhatsApp Text & Done
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Button(
-                        onClick = { onShare(receipt) },
+                    OutlinedButton(
+                        onClick = { onShareText(receipt) },
                         modifier = Modifier
                             .weight(1f)
-                            .testTag("receipt_share_button"),
-                        colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
+                            .testTag("receipt_share_text_button"),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("مشاركة واتساب", fontSize = 12.sp)
+                        Text("مشاركة نصية", fontSize = 12.sp, color = SuccessGreen, fontWeight = FontWeight.SemiBold)
                     }
 
                     Button(
@@ -335,9 +354,9 @@ fun ReceiptDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = RoseGoldPrimary),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(Icons.Default.Print, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("تم / طباعة", fontSize = 12.sp)
+                        Icon(Icons.Default.Print, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("تم / إنهاء", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

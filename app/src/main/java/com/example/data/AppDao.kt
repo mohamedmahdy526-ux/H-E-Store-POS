@@ -21,7 +21,7 @@ interface AppDao {
     @Query("SELECT * FROM products WHERE barcode = :barcode LIMIT 1")
     suspend fun getProductByBarcode(barcode: String): ProductEntity?
 
-    @Query("SELECT * FROM products WHERE stockQuantity <= minStockAlert ORDER BY stockQuantity ASC")
+    @Query("SELECT * FROM products WHERE stockQuantity < 3 OR stockQuantity <= minStockAlert ORDER BY stockQuantity ASC")
     fun getLowStockProducts(): Flow<List<ProductEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

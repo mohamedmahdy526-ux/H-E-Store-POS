@@ -15,6 +15,7 @@ import com.example.data.StoreRepository
 import com.example.model.CartItem
 import com.example.model.PaymentMethod
 import com.example.model.SaleReceipt
+import com.example.util.PdfInvoiceHelper
 import com.example.util.SoundHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -86,7 +87,7 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
                     p.name.contains(query, ignoreCase = true) ||
                     p.barcode.contains(query.trim()) ||
                     p.category.contains(query, ignoreCase = true)
-            val matchesLowStock = !onlyLowStock || p.stockQuantity <= p.minStockAlert
+            val matchesLowStock = !onlyLowStock || p.stockQuantity < 3 || p.stockQuantity <= p.minStockAlert
             matchesCategory && matchesQuery && matchesLowStock
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -257,7 +258,17 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // Share Receipt via WhatsApp or Android Share Sheet
+    // Export and share Invoice as PDF document
+    fun exportAndSharePdfInvoice(receipt: SaleReceipt, context: Context) {
+        PdfInvoiceHelper.exportAndSharePdfInvoice(context, receipt)
+    }
+
+    // Export and share past Order as PDF document
+    fun exportAndShareOrderPdf(order: OrderEntity, context: Context) {
+        PdfInvoiceHelper.exportAndShareOrderPdf(context, order)
+    }
+
+    // Share Receipt via WhatsApp or Android Share Sheet (Text format)
     fun shareReceipt(receipt: SaleReceipt, context: Context) {
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"

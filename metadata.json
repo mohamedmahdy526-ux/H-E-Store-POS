@@ -1,6 +1,6 @@
 {
   "name": "H&E Store POS",
-  "description": "تطبيق نقاط البيع وإدارة المخزون والورديات لمحل H&E Store مع باركود وسلة مبيعات وتقارير أرباح متقدمة",
+  "description": "تطبيق نقاط البيع وإدارة المخزون لمحل H&E Store مع ماسح باركود CameraX وتنبيهات نواقص وتوليد فواتير PDF للمشاركة عبر تطبيقات المراسلة",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
