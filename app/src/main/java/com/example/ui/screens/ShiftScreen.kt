@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,21 +21,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.LockClock
 import androidx.compose.material.icons.filled.MoneyOff
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,20 +40,25 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.ExpenseEntity
 import com.example.data.ShiftEntity
+import com.example.ui.theme.CanvasBackground
+import com.example.ui.theme.CardBorder
+import com.example.ui.theme.CardSurface
+import com.example.ui.theme.CardSurfaceVariant
 import com.example.ui.theme.ChampagneGold
-import com.example.ui.theme.CharcoalMuted
-import com.example.ui.theme.CharcoalText
 import com.example.ui.theme.DangerRed
-import com.example.ui.theme.RoseGoldDark
+import com.example.ui.theme.DangerRedLight
+import com.example.ui.theme.RoseGoldLight
 import com.example.ui.theme.RoseGoldPrimary
-import com.example.ui.theme.SoftBlushBackground
-import com.example.ui.theme.SoftBlushBorder
-import com.example.ui.theme.SoftBlushCard
 import com.example.ui.theme.SuccessGreen
+import com.example.ui.theme.SuccessGreenLight
+import com.example.ui.theme.TextMuted
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -77,9 +77,9 @@ fun ShiftScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(SoftBlushBackground)
+            .background(CanvasBackground)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Active Shift Card
         item {
@@ -106,17 +106,18 @@ fun ShiftScreen(
                         text = "مصروفات وسحوبات الوردية الحالية",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = CharcoalText
+                        color = TextPrimary
                     )
                     OutlinedButton(
                         onClick = onAddExpenseClick,
                         shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                        modifier = Modifier.height(32.dp)
+                        border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.5f)),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.height(36.dp)
                     ) {
-                        Icon(Icons.Default.MoneyOff, contentDescription = null, modifier = Modifier.size(14.dp), tint = DangerRed)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("+ تسجيل مصروف", fontSize = 11.sp, color = DangerRed)
+                        Icon(Icons.Default.MoneyOff, contentDescription = null, modifier = Modifier.size(15.dp), tint = DangerRed)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("+ تسجيل مصروف", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = DangerRed)
                     }
                 }
             }
@@ -125,29 +126,31 @@ fun ShiftScreen(
             if (currentExpenses.isEmpty()) {
                 item {
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SoftBlushCard),
+                        colors = CardDefaults.cardColors(containerColor = CardSurface),
+                        border = BorderStroke(1.dp, CardBorder),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
                             text = "لم يتم تسجيل أي مصروفات أو سحوبات نقدية في هذه الوردية بعد.",
-                            fontSize = 12.sp,
-                            color = CharcoalMuted,
-                            modifier = Modifier.padding(14.dp)
+                            fontSize = 13.sp,
+                            color = TextSecondary,
+                            modifier = Modifier.padding(16.dp)
                         )
                     }
                 }
             } else {
                 items(currentExpenses) { expense ->
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SoftBlushCard),
+                        colors = CardDefaults.cardColors(containerColor = CardSurface),
+                        border = BorderStroke(1.dp, CardBorder),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(12.dp),
+                                .padding(14.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -155,37 +158,38 @@ fun ShiftScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         text = if (expense.type == "EXPENSE") "نثريات" else "سحب كاش",
-                                        fontSize = 10.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = if (expense.type == "EXPENSE") RoseGoldDark else DangerRed,
+                                        color = if (expense.type == "EXPENSE") RoseGoldPrimary else DangerRed,
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(4.dp))
                                             .background(
-                                                if (expense.type == "EXPENSE") RoseGoldPrimary.copy(alpha = 0.1f)
-                                                else DangerRed.copy(alpha = 0.1f)
+                                                if (expense.type == "EXPENSE") RoseGoldLight
+                                                else DangerRedLight
                                             )
-                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                            .padding(horizontal = 8.dp, vertical = 3.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = expense.title,
-                                        fontSize = 13.sp,
+                                        fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = CharcoalText
+                                        color = TextPrimary
                                     )
                                 }
                                 if (expense.notes.isNotBlank()) {
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = expense.notes,
-                                        fontSize = 11.sp,
-                                        color = CharcoalMuted
+                                        fontSize = 12.sp,
+                                        color = TextSecondary
                                     )
                                 }
                             }
 
                             Text(
                                 text = "-${String.format(Locale.US, "%.2f", expense.amount)} ج.م",
-                                fontSize = 14.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = DangerRed
                             )
@@ -199,13 +203,13 @@ fun ShiftScreen(
         item {
             Spacer(modifier = Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.History, contentDescription = null, tint = RoseGoldPrimary, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(6.dp))
+                Icon(Icons.Default.History, contentDescription = null, tint = RoseGoldPrimary, modifier = Modifier.size(22.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "سجل الورديات السابقة المقفلة",
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = CharcoalText
+                    color = TextPrimary
                 )
             }
         }
@@ -214,15 +218,16 @@ fun ShiftScreen(
         if (closedShifts.isEmpty()) {
             item {
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = SoftBlushCard),
+                    colors = CardDefaults.cardColors(containerColor = CardSurface),
+                    border = BorderStroke(1.dp, CardBorder),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = "لا توجد ورديات سابقة مؤرشفة حتى الآن.",
-                        fontSize = 12.sp,
-                        color = CharcoalMuted,
-                        modifier = Modifier.padding(14.dp)
+                        fontSize = 13.sp,
+                        color = TextSecondary,
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
             }
@@ -243,92 +248,106 @@ private fun ActiveShiftCard(
     val expectedCash = shift.openingBalance + shift.totalCashSales - shift.totalExpenses - shift.totalWithdrawals
 
     Card(
-        colors = CardDefaults.cardColors(containerColor = SoftBlushCard),
-        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = CardSurface),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, CardBorder),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(18.dp)) {
             // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .clip(CircleShape)
-                            .background(SuccessGreen)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "الوردية الحالية نشطة",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = SuccessGreen
-                    )
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = SuccessGreenLight,
+                    border = BorderStroke(1.dp, SuccessGreen.copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(SuccessGreen)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "الوردية الحالية نشطة",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = SuccessGreen
+                        )
+                    }
                 }
 
                 Text(
                     text = "الكاشير: ${shift.cashierName}",
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = CharcoalText
+                    color = TextPrimary
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Big Cash Drawer Counter
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(RoseGoldPrimary.copy(alpha = 0.08f))
-                    .border(1.dp, RoseGoldPrimary.copy(alpha = 0.25f), RoundedCornerShape(16.dp))
-                    .padding(14.dp),
-                contentAlignment = Alignment.Center
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = CardSurfaceVariant,
+                border = BorderStroke(1.dp, CardBorder),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
                         text = "الكاش المتوقع حالياً بالدرج",
-                        fontSize = 12.sp,
-                        color = CharcoalMuted
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = TextSecondary
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "${String.format(Locale.US, "%.2f", expectedCash)} ج.م",
-                        fontSize = 24.sp,
+                        fontSize = 28.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = RoseGoldDark
+                        color = RoseGoldPrimary
                     )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Breakdown Grid
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("العهدة الابتدائية:", fontSize = 12.sp, color = CharcoalMuted)
-                    Text("${String.format(Locale.US, "%.2f", shift.openingBalance)} ج.م", fontSize = 12.sp, color = CharcoalText)
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("مبيعات كاش:", fontSize = 12.sp, color = CharcoalMuted)
-                    Text("+${String.format(Locale.US, "%.2f", shift.totalCashSales)} ج.م", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = SuccessGreen)
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("مبيعات إلكترونية (إنستاباي / فيزا):", fontSize = 12.sp, color = CharcoalMuted)
-                    Text("${String.format(Locale.US, "%.2f", shift.totalElectronicSales)} ج.م", fontSize = 12.sp, color = ChampagneGold)
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("المصروفات والسحوبات:", fontSize = 12.sp, color = CharcoalMuted)
-                    Text("-${String.format(Locale.US, "%.2f", shift.totalExpenses + shift.totalWithdrawals)} ج.م", fontSize = 12.sp, color = DangerRed)
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Breakdown Grid
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("العهدة الابتدائية:", fontSize = 13.sp, color = TextSecondary)
+                    Text("${String.format(Locale.US, "%.2f", shift.openingBalance)} ج.م", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("مبيعات كاش:", fontSize = 13.sp, color = TextSecondary)
+                    Text("+${String.format(Locale.US, "%.2f", shift.totalCashSales)} ج.م", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = SuccessGreen)
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("مبيعات إلكترونية (إنستاباي / فيزا):", fontSize = 13.sp, color = TextSecondary)
+                    Text("${String.format(Locale.US, "%.2f", shift.totalElectronicSales)} ج.م", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = ChampagneGold)
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("المصروفات والسحوبات:", fontSize = 13.sp, color = TextSecondary)
+                    Text("-${String.format(Locale.US, "%.2f", shift.totalExpenses + shift.totalWithdrawals)} ج.م", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = DangerRed)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
 
             // Actions
             Row(
@@ -341,11 +360,12 @@ private fun ActiveShiftCard(
                         .weight(1f)
                         .height(44.dp)
                         .testTag("shift_add_expense_button"),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, CardBorder)
                 ) {
                     Icon(Icons.Default.MoneyOff, contentDescription = null, tint = DangerRed, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("تسجيل مصروف", fontSize = 12.sp, color = DangerRed)
+                    Text("تسجيل مصروف", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = DangerRed)
                 }
 
                 Button(
@@ -355,11 +375,11 @@ private fun ActiveShiftCard(
                         .height(44.dp)
                         .testTag("shift_close_button"),
                     colors = ButtonDefaults.buttonColors(containerColor = RoseGoldPrimary),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(10.dp)
                 ) {
                     Icon(Icons.Default.LockClock, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("تقفيل الوردية", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("تقفيل الوردية", fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -369,46 +389,58 @@ private fun ActiveShiftCard(
 @Composable
 private fun NoActiveShiftCard(onOpenShift: () -> Unit) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = SoftBlushCard),
-        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = CardSurface),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, CardBorder),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(28.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                Icons.Default.LockClock,
-                contentDescription = null,
-                tint = CharcoalMuted,
-                modifier = Modifier.size(42.dp)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(RoseGoldLight),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.LockClock,
+                    contentDescription = null,
+                    tint = RoseGoldPrimary,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(14.dp))
             Text(
                 text = "لا توجد وردية مفتوحة حالياً",
-                fontSize = 16.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                color = CharcoalText
+                color = TextPrimary
             )
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "ابدأ بفتح وردية جديدة وسجل عهدة الكاش الابتدائية لبدء البيع ومتابعة الخزينة.",
-                fontSize = 12.sp,
-                color = CharcoalMuted,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                modifier = Modifier.padding(vertical = 8.dp)
+                text = "ابدأ بفتح وردية جديدة وسجل عهدة الكاش الابتدائية لبدء البيع ومتابعة الخزينة بكل دقة.",
+                fontSize = 13.sp,
+                color = TextSecondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onOpenShift,
                 colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.testTag("start_shift_button")
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .height(44.dp)
+                    .testTag("start_shift_button")
             ) {
-                Icon(Icons.Default.PlayArrow, contentDescription = null)
+                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("فتح وردية جديدة", fontWeight = FontWeight.Bold)
+                Text("فتح وردية جديدة", fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -419,8 +451,9 @@ private fun ClosedShiftCard(shift: ShiftEntity, sdf: SimpleDateFormat) {
     val diff = shift.differenceCash ?: 0.0
 
     Card(
-        colors = CardDefaults.cardColors(containerColor = SoftBlushCard),
+        colors = CardDefaults.cardColors(containerColor = CardSurface),
         shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, CardBorder),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
@@ -431,14 +464,14 @@ private fun ClosedShiftCard(shift: ShiftEntity, sdf: SimpleDateFormat) {
             ) {
                 Text(
                     text = "وردية: ${shift.cashierName}",
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = CharcoalText
+                    color = TextPrimary
                 )
                 Text(
                     text = sdf.format(Date(shift.startTime)),
-                    fontSize = 11.sp,
-                    color = CharcoalMuted
+                    fontSize = 12.sp,
+                    color = TextSecondary
                 )
             }
 
@@ -446,11 +479,12 @@ private fun ClosedShiftCard(shift: ShiftEntity, sdf: SimpleDateFormat) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "مبيعات: ${String.format(Locale.US, "%.0f", shift.totalCashSales + shift.totalElectronicSales)} ج.م",
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     color = RoseGoldPrimary,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -461,16 +495,27 @@ private fun ClosedShiftCard(shift: ShiftEntity, sdf: SimpleDateFormat) {
                     diff > 0 -> ChampagneGold
                     else -> DangerRed
                 }
-                Text(
-                    text = when {
-                        Math.abs(diff) < 0.01 -> "مطابقة 100%"
-                        diff > 0 -> "زيادة: +${String.format(Locale.US, "%.0f", diff)} ج"
-                        else -> "عجز: ${String.format(Locale.US, "%.0f", diff)} ج"
-                    },
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = diffColor
-                )
+                val diffBg = when {
+                    Math.abs(diff) < 0.01 -> SuccessGreenLight
+                    diff > 0 -> ChampagneGold.copy(alpha = 0.12f)
+                    else -> DangerRedLight
+                }
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = diffBg
+                ) {
+                    Text(
+                        text = when {
+                            Math.abs(diff) < 0.01 -> "مطابقة 100%"
+                            diff > 0 -> "زيادة: +${String.format(Locale.US, "%.0f", diff)} ج"
+                            else -> "عجز: ${String.format(Locale.US, "%.0f", diff)} ج"
+                        },
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = diffColor,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
             }
         }
     }

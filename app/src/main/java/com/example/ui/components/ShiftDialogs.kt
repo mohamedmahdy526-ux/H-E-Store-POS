@@ -1,7 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,18 +42,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.ShiftEntity
+import com.example.ui.theme.CardBorder
+import com.example.ui.theme.CardSurface
+import com.example.ui.theme.CardSurfaceVariant
 import com.example.ui.theme.ChampagneGold
-import com.example.ui.theme.CharcoalMuted
-import com.example.ui.theme.CharcoalText
 import com.example.ui.theme.DangerRed
-import com.example.ui.theme.RoseGoldDark
+import com.example.ui.theme.DangerRedLight
+import com.example.ui.theme.RoseGoldLight
 import com.example.ui.theme.RoseGoldPrimary
-import com.example.ui.theme.SoftBlushBackground
 import com.example.ui.theme.SuccessGreen
+import com.example.ui.theme.SuccessGreenLight
+import com.example.ui.theme.TextMuted
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 import java.util.Locale
 
 @Composable
@@ -66,14 +74,15 @@ fun OpenShiftDialog(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = Color.White,
-            tonalElevation = 8.dp,
+            color = CardSurface,
+            border = BorderStroke(1.dp, CardBorder),
+            shadowElevation = 12.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
+                    .padding(22.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header
@@ -84,9 +93,11 @@ fun OpenShiftDialog(
                 ) {
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.testTag("open_shift_close")
+                        modifier = Modifier
+                            .size(36.dp)
+                            .testTag("open_shift_close")
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = "إغلاق", tint = CharcoalMuted)
+                        Icon(Icons.Default.Close, contentDescription = "إغلاق", tint = TextSecondary)
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -101,54 +112,72 @@ fun OpenShiftDialog(
                             text = "فتح وردية جديدة",
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
-                            color = CharcoalText
+                            color = TextPrimary
                         )
                     }
 
                     Spacer(modifier = Modifier.width(36.dp))
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
                     value = cashierName,
                     onValueChange = { cashierName = it },
-                    label = { Text("اسم الكاشير المسئول *") },
+                    label = { Text("اسم الكاشير المسئول *", fontSize = 13.sp) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("open_shift_cashier_input"),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = RoseGoldPrimary,
+                        unfocusedBorderColor = CardBorder,
+                        focusedContainerColor = CardSurfaceVariant,
+                        unfocusedContainerColor = CardSurfaceVariant
+                    ),
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = openingBalance,
                     onValueChange = { openingBalance = it },
-                    label = { Text("عهدة الكاش الابتدائية في الدرج (ج.م) *") },
+                    label = { Text("عهدة الكاش الابتدائية في الدرج (ج.م) *", fontSize = 13.sp) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("open_shift_opening_cash_input"),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = RoseGoldPrimary,
+                        unfocusedBorderColor = CardBorder,
+                        focusedContainerColor = CardSurfaceVariant,
+                        unfocusedContainerColor = CardSurfaceVariant
+                    ),
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text("ملاحظات البداية (اختياري)") },
+                    label = { Text("ملاحظات البداية (اختياري)", fontSize = 13.sp) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("open_shift_notes_input"),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = RoseGoldPrimary,
+                        unfocusedBorderColor = CardBorder,
+                        focusedContainerColor = CardSurfaceVariant,
+                        unfocusedContainerColor = CardSurfaceVariant
+                    ),
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Button(
                     onClick = {
@@ -158,12 +187,12 @@ fun OpenShiftDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(50.dp)
                         .testTag("confirm_open_shift_button"),
                     colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("تأكيد بدء الوردية", fontWeight = FontWeight.Bold)
+                    Text("تأكيد بدء الوردية", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -185,14 +214,15 @@ fun RecordExpenseDialog(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = Color.White,
-            tonalElevation = 8.dp,
+            color = CardSurface,
+            border = BorderStroke(1.dp, CardBorder),
+            shadowElevation = 12.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
+                    .padding(22.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header
@@ -203,9 +233,11 @@ fun RecordExpenseDialog(
                 ) {
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.testTag("expense_dialog_close")
+                        modifier = Modifier
+                            .size(36.dp)
+                            .testTag("expense_dialog_close")
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = "إغلاق", tint = CharcoalMuted)
+                        Icon(Icons.Default.Close, contentDescription = "إغلاق", tint = TextSecondary)
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -220,14 +252,14 @@ fun RecordExpenseDialog(
                             text = "تسجيل مصروف أو سحب كاش",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = CharcoalText
+                            color = TextPrimary
                         )
                     }
 
                     Spacer(modifier = Modifier.width(36.dp))
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Type Toggle
                 Row(
@@ -237,7 +269,7 @@ fun RecordExpenseDialog(
                     FilterChip(
                         selected = type == "EXPENSE",
                         onClick = { type = "EXPENSE" },
-                        label = { Text("مصروفات نثرية / تشغيل") },
+                        label = { Text("مصروفات نثرية / تشغيل", fontSize = 12.sp) },
                         modifier = Modifier.weight(1f),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = RoseGoldPrimary,
@@ -247,7 +279,7 @@ fun RecordExpenseDialog(
                     FilterChip(
                         selected = type == "WITHDRAWAL",
                         onClick = { type = "WITHDRAWAL" },
-                        label = { Text("سحب نقدية / توريد") },
+                        label = { Text("سحب نقدية / توريد", fontSize = 12.sp) },
                         modifier = Modifier.weight(1f),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = DangerRed,
@@ -256,7 +288,7 @@ fun RecordExpenseDialog(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Quick suggestions
                 Row(
@@ -266,68 +298,86 @@ fun RecordExpenseDialog(
                     quickExpenseTitles.take(3).forEach { suggestion ->
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = SoftBlushBackground,
+                            color = CardSurfaceVariant,
+                            border = BorderStroke(1.dp, CardBorder),
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(8.dp))
-                                .border(1.dp, Color(0xFFF2D6DC), RoundedCornerShape(8.dp))
-                                .padding(vertical = 4.dp),
-                            onClick = { title = suggestion }
+                                .clickable { title = suggestion }
                         ) {
                             Text(
                                 text = suggestion,
                                 fontSize = 11.sp,
-                                color = CharcoalText,
+                                fontWeight = FontWeight.Medium,
+                                color = TextPrimary,
                                 modifier = Modifier
-                                    .padding(vertical = 4.dp)
+                                    .padding(vertical = 6.dp)
                                     .fillMaxWidth(),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("بيان المصروف / بند السحب *") },
+                    label = { Text("بيان المصروف / بند السحب *", fontSize = 13.sp) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("expense_title_input"),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = RoseGoldPrimary,
+                        unfocusedBorderColor = CardBorder,
+                        focusedContainerColor = CardSurfaceVariant,
+                        unfocusedContainerColor = CardSurfaceVariant
+                    ),
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text("المبلغ المخصوم (ج.م) *") },
+                    label = { Text("المبلغ المخصوم (ج.م) *", fontSize = 13.sp) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("expense_amount_input"),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = RoseGoldPrimary,
+                        unfocusedBorderColor = CardBorder,
+                        focusedContainerColor = CardSurfaceVariant,
+                        unfocusedContainerColor = CardSurfaceVariant
+                    ),
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text("ملاحظات إضافية") },
+                    label = { Text("ملاحظات إضافية", fontSize = 13.sp) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("expense_notes_input"),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = RoseGoldPrimary,
+                        unfocusedBorderColor = CardBorder,
+                        focusedContainerColor = CardSurfaceVariant,
+                        unfocusedContainerColor = CardSurfaceVariant
+                    ),
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Button(
                     onClick = {
@@ -339,12 +389,12 @@ fun RecordExpenseDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(50.dp)
                         .testTag("confirm_expense_button"),
                     colors = ButtonDefaults.buttonColors(containerColor = if (type == "EXPENSE") RoseGoldPrimary else DangerRed),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("خصم من خزينة الوردية", fontWeight = FontWeight.Bold)
+                    Text("خصم من خزينة الوردية", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -367,14 +417,15 @@ fun CloseShiftDialog(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = Color.White,
-            tonalElevation = 8.dp,
+            color = CardSurface,
+            border = BorderStroke(1.dp, CardBorder),
+            shadowElevation = 12.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
+                    .padding(22.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header
@@ -385,16 +436,18 @@ fun CloseShiftDialog(
                 ) {
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.testTag("close_shift_close")
+                        modifier = Modifier
+                            .size(36.dp)
+                            .testTag("close_shift_close")
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = "إغلاق", tint = CharcoalMuted)
+                        Icon(Icons.Default.Close, contentDescription = "إغلاق", tint = TextSecondary)
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             Icons.Default.LockClock,
                             contentDescription = null,
-                            tint = RoseGoldDark,
+                            tint = RoseGoldPrimary,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -402,51 +455,53 @@ fun CloseShiftDialog(
                             text = "إغلاق وتقفيل الوردية",
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
-                            color = CharcoalText
+                            color = TextPrimary
                         )
                     }
 
                     Spacer(modifier = Modifier.width(36.dp))
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Shift Summary Card
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(SoftBlushBackground)
-                        .padding(12.dp)
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = CardSurfaceVariant,
+                    border = BorderStroke(1.dp, CardBorder),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Column(
+                        modifier = Modifier.padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("الكاشير:", fontSize = 12.sp, color = CharcoalMuted)
-                            Text(shift.cashierName, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = CharcoalText)
+                            Text("الكاشير:", fontSize = 13.sp, color = TextSecondary)
+                            Text(shift.cashierName, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("العهدة الافتتاحية:", fontSize = 12.sp, color = CharcoalMuted)
-                            Text("${String.format(Locale.US, "%.2f", shift.openingBalance)} ج.م", fontSize = 12.sp, color = CharcoalText)
+                            Text("العهدة الافتتاحية:", fontSize = 13.sp, color = TextSecondary)
+                            Text("${String.format(Locale.US, "%.2f", shift.openingBalance)} ج.م", fontSize = 13.sp, color = TextPrimary)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("مبيعات كاش بالوردية:", fontSize = 12.sp, color = CharcoalMuted)
-                            Text("+${String.format(Locale.US, "%.2f", shift.totalCashSales)} ج.م", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = SuccessGreen)
+                            Text("مبيعات كاش بالوردية:", fontSize = 13.sp, color = TextSecondary)
+                            Text("+${String.format(Locale.US, "%.2f", shift.totalCashSales)} ج.م", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SuccessGreen)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("مبيعات إلكترونية (إنستاباي/محافظ):", fontSize = 12.sp, color = CharcoalMuted)
-                            Text("${String.format(Locale.US, "%.2f", shift.totalElectronicSales)} ج.م", fontSize = 12.sp, color = ChampagneGold)
+                            Text("مبيعات إلكترونية (إنستاباي/محافظ):", fontSize = 13.sp, color = TextSecondary)
+                            Text("${String.format(Locale.US, "%.2f", shift.totalElectronicSales)} ج.م", fontSize = 13.sp, color = ChampagneGold)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("المصروفات والسحوبات:", fontSize = 12.sp, color = CharcoalMuted)
-                            Text("-${String.format(Locale.US, "%.2f", shift.totalExpenses + shift.totalWithdrawals)} ج.م", fontSize = 12.sp, color = DangerRed)
+                            Text("المصروفات والسحوبات:", fontSize = 13.sp, color = TextSecondary)
+                            Text("-${String.format(Locale.US, "%.2f", shift.totalExpenses + shift.totalWithdrawals)} ج.م", fontSize = 13.sp, color = DangerRed)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("الكاش المتوقع بالدرج:", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = CharcoalText)
+                            Text("الكاش المتوقع بالدرج:", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                             Text(
                                 "${String.format(Locale.US, "%.2f", expectedCash)} ج.م",
-                                fontSize = 14.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = RoseGoldDark
+                                color = RoseGoldPrimary
                             )
                         }
                     }
@@ -457,31 +512,40 @@ fun CloseShiftDialog(
                 OutlinedTextField(
                     value = countedCashInput,
                     onValueChange = { countedCashInput = it },
-                    label = { Text("المبلغ الفعلي المعدود بالدرج (ج.م) *") },
+                    label = { Text("المبلغ الفعلي المعدود بالدرج (ج.م) *", fontSize = 13.sp) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("close_shift_counted_cash_input"),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = RoseGoldPrimary,
+                        unfocusedBorderColor = CardBorder,
+                        focusedContainerColor = CardSurfaceVariant,
+                        unfocusedContainerColor = CardSurfaceVariant
+                    ),
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Variance Indicator
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            when {
-                                Math.abs(diff) < 0.01 -> SuccessGreen.copy(alpha = 0.1f)
-                                diff > 0 -> ChampagneGold.copy(alpha = 0.15f)
-                                else -> DangerRed.copy(alpha = 0.1f)
-                            }
-                        )
-                        .padding(10.dp),
-                    contentAlignment = Alignment.Center
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = when {
+                        Math.abs(diff) < 0.01 -> SuccessGreenLight
+                        diff > 0 -> ChampagneGold.copy(alpha = 0.15f)
+                        else -> DangerRedLight
+                    },
+                    border = BorderStroke(
+                        1.dp,
+                        when {
+                            Math.abs(diff) < 0.01 -> SuccessGreen.copy(alpha = 0.3f)
+                            diff > 0 -> ChampagneGold.copy(alpha = 0.3f)
+                            else -> DangerRed.copy(alpha = 0.3f)
+                        }
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = when {
@@ -495,24 +559,32 @@ fun CloseShiftDialog(
                             Math.abs(diff) < 0.01 -> SuccessGreen
                             diff > 0 -> ChampagneGold
                             else -> DangerRed
-                        }
+                        },
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(12.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text("ملاحظات إغلاق الوردية") },
+                    label = { Text("ملاحظات إغلاق الوردية", fontSize = 13.sp) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("close_shift_notes_input"),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = RoseGoldPrimary,
+                        unfocusedBorderColor = CardBorder,
+                        focusedContainerColor = CardSurfaceVariant,
+                        unfocusedContainerColor = CardSurfaceVariant
+                    ),
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 Button(
                     onClick = {
@@ -521,12 +593,12 @@ fun CloseShiftDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(50.dp)
                         .testTag("confirm_close_shift_button"),
                     colors = ButtonDefaults.buttonColors(containerColor = RoseGoldPrimary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("إغلاق الوردية وترحيل الحسابات", fontWeight = FontWeight.Bold)
+                    Text("إغلاق الوردية وترحيل الحسابات", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

@@ -66,6 +66,7 @@ import com.example.ui.theme.ChampagneGold
 import com.example.ui.theme.CharcoalText
 import com.example.ui.theme.RoseGoldDark
 import com.example.ui.theme.RoseGoldPrimary
+import com.example.util.GoogleBarcodeScannerHelper
 
 @Composable
 fun BarcodeScannerDialog(
@@ -233,7 +234,41 @@ fun BarcodeScannerDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Direct Google Play Services / ML Kit Code Scanner Trigger
+                Button(
+                    onClick = {
+                        GoogleBarcodeScannerHelper.scanWithGooglePlayServices(
+                            context = context,
+                            onSuccess = { scanned ->
+                                onBarcodeDetected(scanned)
+                                onDismiss()
+                            }
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = RoseGoldPrimary),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("dialog_google_scanner_btn")
+                ) {
+                    Icon(
+                        Icons.Default.QrCodeScanner,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "مسح مباشر بمكتبة جوجل للباركود",
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Manual barcode entry
                 Row(

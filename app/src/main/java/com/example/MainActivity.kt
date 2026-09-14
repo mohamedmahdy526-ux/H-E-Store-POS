@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,21 +18,27 @@ import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.PointOfSale
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -54,18 +61,23 @@ import com.example.ui.components.QuickReceiveStockDialog
 import com.example.ui.components.ReceiptDialog
 import com.example.ui.components.ReconcileStockDialog
 import com.example.ui.components.RecordExpenseDialog
+import com.example.ui.components.StoreDrawerContent
 import com.example.ui.components.StoreHeader
 import com.example.ui.screens.CameraScreen
 import com.example.ui.screens.CashierScreen
 import com.example.ui.screens.InventoryScreen
 import com.example.ui.screens.ManagerScreen
 import com.example.ui.screens.ShiftScreen
+import com.example.ui.theme.CanvasBackground
+import com.example.ui.theme.CardBorder
+import com.example.ui.theme.CardSurface
 import com.example.ui.theme.HEStoreTheme
 import com.example.ui.theme.RoseGoldDark
 import com.example.ui.theme.RoseGoldPrimary
 import com.example.ui.theme.SoftBlushBackground
 import com.example.ui.theme.SoftBlushBorder
 import com.example.ui.theme.SoftBlushCard
+import com.example.ui.theme.TextSecondary
 
 enum class StoreNavScreen(val titleAr: String) {
     CASHIER("الكاشير"),
@@ -83,9 +95,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            HEStoreTheme {
+            var isDarkTheme by rememberSaveable { mutableStateOf(false) }
+
+            HEStoreTheme(darkTheme = isDarkTheme) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    StoreApp(viewModel = viewModel)
+                    StoreApp(
+                        viewModel = viewModel,
+                        isDarkTheme = isDarkTheme,
+                        onToggleDarkTheme = { isDarkTheme = !isDarkTheme }
+                    )
                 }
             }
         }
@@ -93,7 +111,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun StoreApp(viewModel: StoreViewModel) {
+fun StoreApp(
+    viewModel: StoreViewModel,
+    isDarkTheme: Boolean,
+    onToggleDarkTheme: () -> Unit
+) {
     val context = LocalContext.current
 
     // Observe ViewModel State
@@ -136,28 +158,58 @@ fun StoreApp(viewModel: StoreViewModel) {
     var showExpenseDialog by remember { mutableStateOf(false) }
     var showCloseShiftDialog by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            StoreHeader(
+    // Drawer and Settings State
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
+    var alertsEnabled by rememberSaveable { mutableStateOf(true) }
+    var soundHapticEnabled by rememberSaveable { mutableStateOf(true) }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = true,
+        drawerContent = {
+            StoreDrawerContent(
+                currentScreen = currentScreen,
                 activeShift = activeShift,
-                cartCount = cartTotalCount,
+                lowStockCount = lowStockProducts.size,
+                isDarkMode = isDarkTheme,
+                alertsEnabled = alertsEnabled,
+                soundHapticEnabled = soundHapticEnabled,
+                onScreenSelected = { screen ->
+                    currentScreen = screen
+                },
+                onToggleDarkMode = onToggleDarkTheme,
+                onToggleAlerts = { alertsEnabled = it },
+                onToggleSoundHaptic = { soundHapticEnabled = it },
                 onOpenScanner = { showCameraScreen = true },
-                onCartClicked = {
-                    currentScreen = StoreNavScreen.CASHIER
-                    isCartSheetExpanded = !isCartSheetExpanded
+                onCloseDrawer = {
+                    coroutineScope.launch { drawerState.close() }
                 }
             )
-        },
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                StoreHeader(
+                    activeShift = activeShift,
+                    onOpenDrawer = {
+                        coroutineScope.launch { drawerState.open() }
+                    }
+                )
+            },
         bottomBar = {
             Surface(
-                color = SoftBlushCard,
-                shadowElevation = 8.dp,
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                color = CardSurface,
+                border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+                shadowElevation = 3.dp,
+                shape = RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp)
             ) {
                 NavigationBar(
-                    containerColor = SoftBlushCard,
+                    containerColor = CardSurface,
                     tonalElevation = 0.dp,
-                    modifier = Modifier.navigationBarsPadding()
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .height(60.dp)
                 ) {
                     NavigationBarItem(
                         selected = currentScreen == StoreNavScreen.CASHIER,
@@ -166,16 +218,16 @@ fun StoreApp(viewModel: StoreViewModel) {
                             Icon(
                                 Icons.Default.PointOfSale,
                                 contentDescription = "الكاشير",
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(21.dp)
                             )
                         },
-                        label = { Text("الكاشير", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                        label = { Text("الكاشير", fontSize = 11.sp, fontWeight = if (currentScreen == StoreNavScreen.CASHIER) FontWeight.Bold else FontWeight.Medium) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = RoseGoldPrimary,
-                            selectedTextColor = RoseGoldDark,
-                            indicatorColor = RoseGoldPrimary.copy(alpha = 0.15f),
-                            unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray
+                            selectedTextColor = RoseGoldPrimary,
+                            indicatorColor = RoseGoldPrimary.copy(alpha = 0.12f),
+                            unselectedIconColor = TextSecondary,
+                            unselectedTextColor = TextSecondary
                         ),
                         modifier = Modifier.testTag("nav_cashier")
                     )
@@ -187,16 +239,16 @@ fun StoreApp(viewModel: StoreViewModel) {
                             Icon(
                                 Icons.Default.Inventory2,
                                 contentDescription = "المخزون",
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(21.dp)
                             )
                         },
-                        label = { Text("المخزون", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                        label = { Text("المخزون", fontSize = 11.sp, fontWeight = if (currentScreen == StoreNavScreen.INVENTORY) FontWeight.Bold else FontWeight.Medium) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = RoseGoldPrimary,
-                            selectedTextColor = RoseGoldDark,
-                            indicatorColor = RoseGoldPrimary.copy(alpha = 0.15f),
-                            unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray
+                            selectedTextColor = RoseGoldPrimary,
+                            indicatorColor = RoseGoldPrimary.copy(alpha = 0.12f),
+                            unselectedIconColor = TextSecondary,
+                            unselectedTextColor = TextSecondary
                         ),
                         modifier = Modifier.testTag("nav_inventory")
                     )
@@ -208,16 +260,16 @@ fun StoreApp(viewModel: StoreViewModel) {
                             Icon(
                                 Icons.Default.Schedule,
                                 contentDescription = "الوردية",
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(21.dp)
                             )
                         },
-                        label = { Text("الوردية", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                        label = { Text("الوردية", fontSize = 11.sp, fontWeight = if (currentScreen == StoreNavScreen.SHIFT) FontWeight.Bold else FontWeight.Medium) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = RoseGoldPrimary,
-                            selectedTextColor = RoseGoldDark,
-                            indicatorColor = RoseGoldPrimary.copy(alpha = 0.15f),
-                            unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray
+                            selectedTextColor = RoseGoldPrimary,
+                            indicatorColor = RoseGoldPrimary.copy(alpha = 0.12f),
+                            unselectedIconColor = TextSecondary,
+                            unselectedTextColor = TextSecondary
                         ),
                         modifier = Modifier.testTag("nav_shift")
                     )
@@ -229,23 +281,23 @@ fun StoreApp(viewModel: StoreViewModel) {
                             Icon(
                                 Icons.Default.Assessment,
                                 contentDescription = "الإدارة",
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(21.dp)
                             )
                         },
-                        label = { Text("الإدارة", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                        label = { Text("الإدارة", fontSize = 11.sp, fontWeight = if (currentScreen == StoreNavScreen.MANAGER) FontWeight.Bold else FontWeight.Medium) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = RoseGoldPrimary,
-                            selectedTextColor = RoseGoldDark,
-                            indicatorColor = RoseGoldPrimary.copy(alpha = 0.15f),
-                            unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray
+                            selectedTextColor = RoseGoldPrimary,
+                            indicatorColor = RoseGoldPrimary.copy(alpha = 0.12f),
+                            unselectedIconColor = TextSecondary,
+                            unselectedTextColor = TextSecondary
                         ),
                         modifier = Modifier.testTag("nav_manager")
                     )
                 }
             }
         },
-        containerColor = SoftBlushBackground
+        containerColor = CanvasBackground
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -272,7 +324,8 @@ fun StoreApp(viewModel: StoreViewModel) {
                         onOpenCheckout = { showCheckoutDialog = true },
                         isCartSheetExpanded = isCartSheetExpanded,
                         onToggleCartSheet = { isCartSheetExpanded = !isCartSheetExpanded },
-                        onOpenScanner = { showCameraScreen = true }
+                        onOpenScanner = { showCameraScreen = true },
+                        onBarcodeScanned = { barcode -> viewModel.onBarcodeScanned(barcode, context) }
                     )
                 }
 
@@ -323,6 +376,7 @@ fun StoreApp(viewModel: StoreViewModel) {
             }
         }
     }
+}
 
     // --- Modal Dialogs & Camera Screen ---
 
